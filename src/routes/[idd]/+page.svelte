@@ -44,6 +44,12 @@
                 Add to favorites
             </button>
         </form>
+        <form action="?/deleteFromFavorites" method="post" use:enhance>
+            <input type="hidden" name="mal_id" value={data.anime.mal_id} />
+            <button class="bg-white text-black rounded p-3" type="submit">
+                Delete from favorites
+            </button>
+        </form>
 
         <button
             class="bg-white text-black rounded p-3"
