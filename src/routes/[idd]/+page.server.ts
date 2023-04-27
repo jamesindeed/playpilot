@@ -1,6 +1,7 @@
 import { apiRequest } from "$lib/api.util";
 import favorites from "../../data/favorites";
 import type { Actions, PageServerLoad } from "./$types";
+import { z } from "zod";
 
 export type Anime = {
     data: {
@@ -13,9 +14,23 @@ export type Anime = {
                 small_image_url: string;
                 large_image_url: string;
             };
-        }
-    }
+        };
+        genres: {
+            name: string;
+        }[];
+        synopsis: string;
+    };
 };
+
+const addSchema = z.object({
+    mal_id: z.string(),
+    title: z.string(),
+    image: z.string(),
+});
+
+const deleteSchema = z.object({
+    mal_id: z.string(),
+});
 
 export const load = (async ({ params }) => {
     const id = params.idd;
@@ -27,18 +42,39 @@ export const load = (async ({ params }) => {
 
 export const actions = {
     addToFavorites: async ({ request }) => {
-        const form = await request.formData();
-
-        // Here we would use zod to validate the form data
-        // And after that the form data would be typed as
-        // { mal_id: number, title: string, image: string }
-        // :)
-        const mal_id = form.get("mal_id") as unknown as number;
-        const title = form.get("title") as unknown as string;
-        const image = form.get("image") as unknown as string;
-
-        favorites.set(mal_id, { title: title, image: image });
-
-        return { success: true };
+        const form = Object.fromEntries(await request.formData());
+        try {
+            const result = addSchema.parse(form);
+            const { mal_id, title, image } = result;
+            if (favorites.has(mal_id)) {
+                return {
+                    success: false,
+                    errors: { message: "Already in favorites" },
+                };
+            }
+            favorites.set(mal_id, { title, image });
+            return { success: true };
+        } catch (err) {
+            const { fieldErrors: errors } = err.flatten();
+            return { success: false, errors };
+        }
+    },
+    deleteFromFavorites: async ({ request }) => {
+        const form = Object.fromEntries(await request.formData());
+        try {
+            const result = deleteSchema.parse(form);
+            const { mal_id } = result;
+            if (!favorites.has(mal_id)) {
+                return {
+                    success: false,
+                    errors: { message: "Not in favorites" },
+                };
+            }
+            favorites.delete(mal_id);
+            return { success: true };
+        } catch (err) {
+            const { fieldErrors: errors } = err.flatten();
+            return { success: false, errors };
+        }
     },
 } satisfies Actions;
