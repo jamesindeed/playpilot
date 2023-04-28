@@ -7,5 +7,3 @@ export const load = (async () => {
     };
 }) satisfies LayoutServerLoad;
 
-
-

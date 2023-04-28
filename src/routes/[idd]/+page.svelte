@@ -11,7 +11,7 @@
 <div
     class="border border-neutral-900 bg-[#0E0E0E] rounded-lg gap-6 relative mx-auto min-h-screen max-w-screen-2xl py-8 px-4 sm:px-8"
 >
-    {#if form?.success === false}
+    {#if form?.error}
         <div
             class="absolute top-0 left-0 right-0 bottom-0 bg-black bg-opacity-50 flex items-center justify-center"
         >
@@ -19,18 +19,7 @@
                 class="bg-black border border-neutral-900 rounded-lg px-12 py-6 flex flex-col gap-4 justify-center"
             >
                 <h3 class="text-lg text-white font-bold">
-                    {#if form?.errors?.mal_id}
-                        {form?.errors?.mal_id[0]}
-                    {/if}
-                    {#if form?.errors?.title}
-                        {form?.errors?.title[0]}
-                    {/if}
-                    {#if form?.errors?.image}
-                        {form?.errors?.image[0]}
-                    {/if}
-                    {#if form?.errors?.message}
-                        {form?.errors?.message}
-                    {/if}
+                    {form.error}
                 </h3>
                 <button
                     on:click={() => (form = null)}
